@@ -7,6 +7,7 @@ import EditAttraction from "./pages/EditAttraction";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
 import Navbar from "./components/Navbar";
+import GalleryPage from "./pages/GalleryPage"
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
     </Router>
   );
 }
+
 function AppContent(){
   const location =useLocation();
   const hideNavbar=location.pathname==="/admin-login";
@@ -29,6 +31,8 @@ function AppContent(){
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/add-attraction" element={<AddAttraction />} />
           <Route path="/edit/:id" element={<EditAttraction />} />
+          <Route path="/gallery/:id" element={<GalleryPage />} />
+
         </Routes>
       </div>
       </>
