@@ -13,7 +13,6 @@ const ListAttractions = () => {
     }, []);
 
     const handleDelete = (id, name) => {
-        // ✅ Show confirmation popup
         const confirmDelete = window.confirm(`Are you sure you want to delete "${name}"?`);
         if (!confirmDelete) return;
 
@@ -61,12 +60,22 @@ const ListAttractions = () => {
                             </Carousel>
                             <Card.Body>
                                 <Card.Title>{attraction.name}</Card.Title>
-                                
-                                {/* ✅ Location Added */}
                                 <Card.Subtitle className="mb-2 text-muted">{attraction.location}</Card.Subtitle>
-
                                 <Card.Text>{attraction.description}</Card.Text>
-                                
+
+                                {/* ✅ Embedded Google Map */}
+                                {attraction.latitude && attraction.longitude && (
+                                    <iframe
+                                        title="Google Map Location"
+                                        width="100%"
+                                        height="200"
+                                        frameBorder="0"
+                                        style={{ border: 0, marginBottom: "10px" }}
+                                        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBvjFDeequGLXxgKrTzYF_tsPn5ojIV3BM&q=${attraction.latitude},${attraction.longitude}`}
+                                        allowFullScreen
+                                    ></iframe>
+                                )}
+
                                 <div className="d-flex justify-content-between">
                                     <Link to={`/edit/${attraction.id}`}>
                                         <Button variant="warning">Edit</Button>

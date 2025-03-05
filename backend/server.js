@@ -58,28 +58,28 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
+
+// ✅ Add New Attraction with Latitude & Longitude
 app.post("/attractions", upload.array("images", 10), async (req, res) => {
   try {
-    console.log("Received data:", req.body);  // Debugging
-    console.log("Received files:", req.files); // Debugging
+    console.log("Received data:", req.body);
+    console.log("Received files:", req.files);
 
-    const { name, location, description, imageUrls } = req.body; // Accept imageUrls directly from the request body
+    const { name, location, description, latitude, longitude, imageUrls } = req.body;
     
     let imagesArray = [];
 
     if (imageUrls) {
-      // If image URLs are provided in the request body, use them
       imagesArray = Array.isArray(imageUrls) ? imageUrls : [imageUrls];
     } else if (req.files && req.files.length > 0) {
-      // If files are uploaded, use their paths
       imagesArray = req.files.map((file) => `/uploads/${file.filename}`);
     } else {
       return res.status(400).json({ message: "No images provided" });
     }
 
     const newAttraction = await pool.query(
-      "INSERT INTO attractions (name, location, description, image_urls) VALUES ($1, $2, $3, $4) RETURNING *",
-      [name, location, description, imagesArray]
+      "INSERT INTO attractions (name, location, latitude, longitude, description, image_urls) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+      [name, location, latitude, longitude, description, imagesArray]
     );
 
     res.status(201).json(newAttraction.rows[0]);
@@ -88,32 +88,47 @@ app.post("/attractions", upload.array("images", 10), async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+// ✅ Update Attraction with Latitude & Longitude
 app.put("/attractions/:id", async (req, res) => {
   try {
-      const { id } = req.params;
-      const { name, location, description, image_urls } = req.body;
-      
-      await pool.query(
-          "UPDATE attractions SET name = $1, location = $2, description = $3, image_urls = $4 WHERE id = $5",
-          [name, location, description, image_urls, id]
-      );
+    const { id } = req.params;
+    const { name, location, latitude, longitude, description, image_urls } = req.body;
 
-      res.json({ message: "Attraction updated successfully" });
+    // ✅ Fetch existing images
+    const existingImagesResult = await pool.query(
+      "SELECT image_urls FROM attractions WHERE id = $1",
+      [id]
+    );
+
+    let existingImages = existingImagesResult.rows[0]?.image_urls || [];
+
+    // ✅ Preserve old images if no new ones are provided
+    const finalImages = Array.isArray(image_urls) && image_urls.length > 0 ? image_urls : existingImages;
+
+    await pool.query(
+      "UPDATE attractions SET name = $1, location = $2, latitude = $3, longitude = $4, description = $5, image_urls = $6 WHERE id = $7",
+      [name, location, latitude, longitude, description, finalImages, id]
+    );
+
+    res.json({ message: "Attraction updated successfully" });
   } catch (error) {
-      console.error("Error updating attraction:", error);
-      res.status(500).json({ message: "Server error" });
+    console.error("Error updating attraction:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
+
+// ✅ Fetch All Attractions with Latitude & Longitude
 app.get("/attractions", async (req, res) => {
   try {
-    const result = await pool.query("SELECT id, name, location, description, image_urls FROM attractions");
+    const result = await pool.query("SELECT id, name, location, latitude, longitude, description, image_urls FROM attractions");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: "Error fetching attractions" });
   }
 });
 
+// ✅ Fetch Single Attraction
 app.get("/attractions/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -127,7 +142,7 @@ app.get("/attractions/:id", async (req, res) => {
   }
 });
 
-// Fetch Complete Gallery Images
+// ✅ Fetch Gallery Images
 app.get("/attractions/:id/gallery", async (req, res) => {
   try {
     const { id } = req.params;
@@ -141,7 +156,7 @@ app.get("/attractions/:id/gallery", async (req, res) => {
   }
 });
 
-
+// ✅ Delete Attraction
 app.delete("/attractions/:id", async (req, res) => {
   try {
     await pool.query("DELETE FROM attractions WHERE id = $1", [req.params.id]);
