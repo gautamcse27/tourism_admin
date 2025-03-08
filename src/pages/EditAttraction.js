@@ -28,7 +28,7 @@ const EditAttraction = () => {
     const [successMessage, setSuccessMessage] = useState("");
 
     const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: "AIzaSyBvjFDeequGLXxgKrTzYF_tsPn5ojIV3BM", // 🔹 Replace with your actual API key
+        googleMapsApiKey: "use api key for map", // 🔹 Replace with your actual API key
         libraries: ["places"],
     });
 
