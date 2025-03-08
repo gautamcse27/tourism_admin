@@ -23,7 +23,7 @@ const AddAttraction = () => {
     const navigate = useNavigate();
 
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: "AIzaSyBvjFDeequGLXxgKrTzYF_tsPn5ojIV3BM", // Replace with your actual API Key
+        googleMapsApiKey: "use api_key for map", // Replace with your actual API Key
     });
 
     if (loadError) return <div>Error loading maps</div>;
